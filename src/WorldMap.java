@@ -218,6 +218,7 @@ public class WorldMap extends JFrame implements ActionListener{
 			if (command.equals("new")){
 				countryList = new ArrayList<String>();
 				harborList = new ArrayList<Harbor>();
+				drawPnl.updateHarborMap();
 			} else if (command.equals("open")){
 				JFileChooser fc = new JFileChooser();
 				fc.setCurrentDirectory(new File("src/"));
@@ -258,6 +259,8 @@ public class WorldMap extends JFrame implements ActionListener{
 				//remove ship from harbor
 			} else if (command.equals("removeharbor")){
 				//remove harbor and all ships in it.
+			} else if (command.equals("search")){
+				Search_GUI frm = new Search_GUI(harborList, countryList);
 			}
 	}
 
