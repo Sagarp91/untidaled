@@ -29,8 +29,8 @@ public abstract class Ship {
 	}
 	
 	public String toString(){
-		return "Name: " + name + ", Harbor: " + curHarbor +
-			", Country: " + country;
+		return name + " " + country + " " + curHarbor + " " +
+			shipClass;
 	}
 	
 	//Getters:

@@ -26,8 +26,7 @@ public class Harbor {
 	}
 	
 	public String toString(){
-		return "HARBOR NAME: " + name + ", COUNTRY: " + country +
-			"LOCATION: " + loc;
+		return name + " " + country + " " + loc;
 	}
 	
 	//Mutators:

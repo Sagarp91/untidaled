@@ -6,17 +6,23 @@
 *
 */
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.Writer;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JFileChooser;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
@@ -25,14 +31,16 @@ import java.awt.Dimension;
  * @author Tommy
  * @version 1.0 10/7/2012
  */
-public class WorldMap extends JFrame implements ActionListener, MouseListener{
+public class WorldMap extends JFrame implements ActionListener{
 	public static ArrayList<Harbor> harborList;
 	private static ArrayList<String> countryList;
-	private boolean isAdmin;
-	private static final int WORLD_WIDTH = 600, WORLD_HEIGHT = 500;
-	public static final int HARBOR_XBOUND = 50, HARBOR_YBOUND = 50;
+	private static DrawPanel drawPnl;
+	public static JPopupMenu;
+	public static boolean isAdmin;
+	public static final int WORLD_WIDTH = 500, WORLD_HEIGHT = 550;
+	public static final int HARBOR_XBOUND = 25, HARBOR_YBOUND = 25;
 	public WorldMap(boolean isAdmin){
-		setSize(WORLD_WIDTH, WORLD_HEIGHT);
+		setBounds(300, 200, WORLD_WIDTH, WORLD_HEIGHT);
 		setResizable(false);
 		setLayout(new BorderLayout());
 
@@ -41,11 +49,53 @@ public class WorldMap extends JFrame implements ActionListener, MouseListener{
 		initVars();
 		initMenu();
 		initPanels();
+		if (isAdmin){
+			initRightClick();
+		}
 
 
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+	}
+	/**
+	 * Create right-click popup menu
+	 */
+	private void initRightClick(){
+		right = new JPopupMenu();
+
+		JMenu newM = new JMenu("New");
+
+		JMenuItem newShip = new JMenuItem("Ship");
+		newShip.setActionCommand("newship");
+		newShip.addActionListener(this);
+
+		JMenuItem newHarbor = new JMenuItem("Harbor");
+		newHarbor.setActionCommand("newharbor");
+		newHarbor.addActionListener(this);
+
+		JMenuItem newCountry = new JMenuItem("Country");
+		newCountry.setActionCommand("newcountry");
+		newCountry.addActionListener(this);
+
+		JMenu removeM = new JMenu("Remove");
+
+		JMenuItem removeShip = new JMenuItem("Ship");
+		removeShip.setActionCommand("removeship");
+		removeShip.addActionListener(this);
+
+		JMenuItem removeHarbor = new JMenuItem("Harbor");
+		removeHarbor.setActionCommand("removeharbor");
+		removeHarbor.addActionListener(this);
+
+		newM.add(newShip);
+		newM.add(newHarbor);
+		newM.add(newCountry);
+		removeM.add(removeShip);
+		removeM.add(removeHarbor);
+
+		right.add(newM);
+		right.add(removeM);
 	}
 	/**
 	 * Initialize variables
@@ -58,13 +108,13 @@ public class WorldMap extends JFrame implements ActionListener, MouseListener{
 	 * Set up the panels and the search button.
 	 */
 	private void initPanels(){
-		DrawPanel drawPnl = new DrawPanel();
+		drawPnl = new DrawPanel();
 		JPanel botPnl = new JPanel();
 		botPnl.setLayout(new BorderLayout());
 		botPnl.setPreferredSize(new Dimension(WORLD_WIDTH, 50));
 		add(drawPnl, BorderLayout.CENTER);
 		add(botPnl, BorderLayout.SOUTH);
-		JPanel infoPnl = new JPanel();
+		InfoPanel infoPnl = new InfoPanel();
 		JButton searchBtn = new JButton("Search");
 		searchBtn.addActionListener(this);
 		searchBtn.setActionCommand("search");
@@ -164,25 +214,120 @@ public class WorldMap extends JFrame implements ActionListener, MouseListener{
 	public void actionPerformed(ActionEvent ae){
 			String command = ae.getActionCommand();
 			if (command.equals("new")){
-					countryList = new ArrayList<String>();
-					harborList = new ArrayList<Harbor>();
-					//TODO Things.
+				countryList = new ArrayList<String>();
+				harborList = new ArrayList<Harbor>();
 			} else if (command.equals("open")){
-					//TODO Things.
+				JFileChooser fc = new JFileChooser();
+				fc.setCurrentDirectory(new File("src/"));
+				int returnVal = fc.showOpenDialog(this);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File aFile = fc.getSelectedFile();
+					openFile(aFile);
+				}
 			} else if (command.equals("save")){
-					//TODO Things.
+				JFileChooser fc = new JFileChooser();
+				fc.setCurrentDirectory(new File("src/"));
+				int returnVal = fc.showSaveDialog(this);
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File aFile = fc.getSelectedFile();
+					saveFile(aFile);
+				}
 			} else if (command.equals("exit")){
-					System.exit(0);
+				System.exit(0);
+			} else if (command.equals("newship")){
+				//new ship
+			} else if (command.equals("newcountry")){
+				//new country
+			} else if (command.equals("newharbor")){
+				//new harbor
+			} else if (command.equals("removeship")){
+				//remove ship from harbor
+			} else if (command.equals("removeharbor")){
+				//remove harbor and all ships in it.
 			}
 	}
 
-	public void mouseEntered(MouseEvent me){}
-	public void mouseExited(MouseEvent me){}
-	public void mouseClicked(MouseEvent me){}
-	public void mousePressed(MouseEvent me){
-			//TODO Things
+//---FILE IN/OUT:---
+
+	private void openFile(File aFile){
+		try{
+			harborList = new ArrayList<Harbor>();
+			countryList = new ArrayList<String>();
+
+			Scanner sc = new Scanner(aFile);
+			String next = sc.next();
+			while (!next.equals("0")){
+				countryList.add(next);
+				next = sc.next();
+			}
+			next = sc.next();
+			while (!next.equals("0")){
+				String name = next;
+				next = sc.next();
+				String country = next;
+				next = sc.next();
+
+				String coordinates = next;
+				next = sc.next();
+				for (int i = 0; i < coordinates.length(); ++i){
+					if (coordinates.charAt(i) == ','){
+						coordinates = coordinates.substring(0, i) + " " + 
+							coordinates.substring(i + 1, coordinates.length());
+					}
+				}
+				Scanner sc2 = new Scanner(coordinates);
+				Point pt = new Point(sc2.nextInt(), sc2.nextInt());
+				harborList.add(new Harbor(name, country, pt));
+			}
+			next = sc.next();
+			while (!next.equals("0")){
+				String name = next;
+				next = sc.next();
+				String country = next;
+				next = sc.next();
+				String harbor = next;
+				next = sc.next();
+				String shipClass = next;
+				next = sc.next();
+				Ship ship;
+				if (shipClass.equals("Civilian")){
+					ship = new CivilianShip(name, country, harbor);
+				} else{
+					ship = new WarShip(name, country, harbor);
+				}
+				
+				for (Harbor hb : harborList){
+					if (hb.getName().equals(harbor)){
+						hb.addShip(ship);
+						break;
+					}
+				}
+			}
+			repaint();
+		} catch (Exception e){
+				System.err.println("File is corrupt or wrong type!");
+		}
 	}
-	public void mouseReleased(MouseEvent me){
-			//TODO Things
+	private void saveFile(File aFile){
+			try{
+				Writer out = new OutputStreamWriter(new FileOutputStream(aFile));
+				for (String str : countryList){
+					out.write(str + "\n");
+				}
+				out.write(0 + "\n");
+				for (Harbor hb : harborList){
+					out.write(hb + "\n");
+				}
+				out.write(0 + "\n");
+				for (Harbor hb : harborList){
+					for (Ship ship : hb.getShipList()){
+						out.write(ship + "\n");
+					}
+				}
+				out.write(0 + "\n");
+				out.close();
+			} catch (Exception e){
+				System.err.println("Failed to save!");
+			}
 	}
 }
