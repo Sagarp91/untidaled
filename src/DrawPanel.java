@@ -96,8 +96,10 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
 	public void mouseExited(MouseEvent me){}
 	public void mousePressed(MouseEvent me){
 		if (me.getButton() == MouseEvent.BUTTON3){
-			Point pt = new Point(me.getPoint().x, me.getPoint().y);
-			WorldMap.right.show(this, pt.x, pt.y);
+			if (WorldMap.isAdmin){
+				Point pt = new Point(me.getPoint().x, me.getPoint().y);
+				WorldMap.right.show(this, pt.x, pt.y);
+			}
 		}
 	}
 	public void mouseReleased(MouseEvent me){}
