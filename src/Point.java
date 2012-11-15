@@ -7,29 +7,24 @@
 */
 
 /**
- * Used in place of java.awt.Point so that double values can be assigned. Will
- * be used if we decide to implement movement and turns.
+ * Used in place of java.util.Point for brevity and consistency (java's version
+ * returns double values for its getters).
  * @author Tommy
- * @version 1.0 10/7/2012
+ * @version 1.1 11/14/2012
  */
 public class Point {
-	protected double x, y;
-	public Point(double x, double y){
+	public int x, y;
+	public Point(int x, int y){
 		this.x = x;
 		this.y = y;
 	}
-	/**
-	 * Calculates the distance between this point and the given point.
-	 * @param pt The point to compare to.
-	 * @return The distance between the points.
-	 */
-	public double distanceTo(Point pt){
-		return Math.sqrt(Math.pow(x - pt.getX(), 2) + Math.pow(y - pt.getY(), 2));
-	}
-	public double getX(){
+	public int getX(){
 		return x;
 	}
-	public double getY(){
+	public int getY(){
 		return y;
+	}
+	public String toString(){
+		return x + "," + y;
 	}
 }

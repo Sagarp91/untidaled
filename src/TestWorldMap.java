@@ -13,8 +13,8 @@
  */
 public class TestWorldMap {
 	public static void main(String[] args){
-		WorldMap.addHarbor(new Harbor("Spanish Port", 1, "Spain"));
-		WorldMap.addHarbor(new Harbor("Indian Port", 4, "India"));
+		WorldMap.addHarbor(new Harbor("Spanish Port", "Spain", new Point(1,1)));
+		WorldMap.addHarbor(new Harbor("Indian Port", "India", new Point(2,2)));
 		System.out.println(WorldMap.printHarborList());
 		
 		WorldMap.removeHarbor("Spanish Port");

@@ -16,17 +16,18 @@ public class Harbor {
 	private ArrayList<Ship> shipList;
 	private String country; //Country of ownership.
 	private String name; //Unique name of harbor.
-	private int ID; //Unique ID for the harbor.
+	private Point loc; //Coordinates of the harbor.
 	
-	public Harbor(String name, int ID, String country){
-		this.ID = ID;
+	public Harbor(String name, String country, Point loc){
 		this.name = name;
 		this.country = country;
+		this.loc = loc;
 		shipList = new ArrayList<Ship>();
 	}
 	
 	public String toString(){
-		return "HARBOR ID: " + ID + ", HARBOR NAME: " + name + ", COUNTRY: " + country;
+		return "HARBOR NAME: " + name + ", COUNTRY: " + country +
+			"LOCATION: " + loc;
 	}
 	
 	//Mutators:
@@ -69,8 +70,8 @@ public class Harbor {
 	
 	//Getters:
 	
-	public int getID(){
-		return ID;
+	public Point getLoc(){
+		return loc;
 	}
 	public String getCountry(){
 		return country;

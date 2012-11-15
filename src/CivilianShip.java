@@ -13,10 +13,9 @@
  */
 public class CivilianShip extends Ship{
 
-	public CivilianShip(String name, String country, int curHarbor) {
+	public CivilianShip(String name, String country, String curHarbor) {
 		super(name, country, curHarbor);
-		value = 50;
-		speed = 5;
+		this.shipClass = "Civilian Ship";
 	}
 
 }

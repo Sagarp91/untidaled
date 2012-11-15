@@ -12,11 +12,11 @@
  * @version 1.0 10/7/2012
  */
 public class WarShip extends Ship{
+	
 
-	public WarShip(String name, String country, int curHarbor) {
+	public WarShip(String name, String country, String curHarbor){
 		super(name, country, curHarbor);
-		value = 100;
-		speed = 10;
+		this.shipClass = "War Ship";
 	}
 	
 }

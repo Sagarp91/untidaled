@@ -13,6 +13,7 @@
  */
 public class TestShips {
 	public static void main(String[] args){
+		/*
 		Ship[] array = new Ship[2];
 		
 		array[0] = new CivilianShip("Santa Maria", "Spain", 1);
@@ -30,5 +31,6 @@ public class TestShips {
 		for (Ship testShip : array){
 			System.out.println(testShip);
 		}
+		*/
 	}
 }

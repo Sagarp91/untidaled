@@ -13,10 +13,11 @@
  */
 public class TestHarbor {
 	public static void main(String[] args){
+		/*
 		Harbor[] harborArray = new Harbor[2];
 		
-		harborArray[0] = new Harbor("Spanish Port", 1, "Spain");
-		harborArray[0].addShip(new CivilianShip("Santa Maria", "Spain", 1));
+		harborArray[0] = new Harbor("Spanish Port", "Spain", new Point(1,1));
+		harborArray[0].addShip(new CivilianShip("Santa Maria", "Spain", "Spanish Port");
 		
 		harborArray[1] = new Harbor("American Port", 2, "USA");
 		harborArray[1].addShip(new CivilianShip("S.S. Anne", "USA", 2));
@@ -43,5 +44,6 @@ public class TestHarbor {
 			}
 			System.out.println("---");
 		}
+		*/
 	}
 }
