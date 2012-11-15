@@ -37,8 +37,8 @@ public class NewShip extends JFrame implements ActionListener{
 		shipNameField = new JTextField(15);										// Creating TextField
 //		harbor = new JComboBox(harborNames.toArray());							// Adding all the Harbors into combobox
 //		country = new JComboBox(countryNames.toArray());						// Adding all the Countries into Combobox
-		harbor = new JComboBox();
-		country = new JComboBox();
+		harbor = new JComboBox(harborNames.toArray());
+		country = new JComboBox(countryNames.toArray());
 		cancel = new JButton("Cancel");											// Adding the cancel button
 		okay = new JButton("Okay");												// Adding the okay button
 		name = new JLabel("Ship Name :");										// Creating a Label for Ship Name
@@ -95,6 +95,7 @@ public class NewShip extends JFrame implements ActionListener{
 		}
 		else{			
 			WorldMap.addShip(new CivilianShip(shipNameField.getText(), (String) country.getSelectedItem(), (String) harbor.getSelectedItem()));
+			setVisible(false);
 		}
 	}
 }

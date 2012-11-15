@@ -24,6 +24,7 @@ public class NewCountry extends JFrame implements ActionListener{
 		setTitle("New Ship");
 
 		countryNamesField = new JTextField(15);
+		countryNamesField.setBounds(25,80,250,20);
 		cancel = new JButton("Cancel");
 		okay = new JButton("Okay");
 		countryName = new JLabel("Enter a Country :");
@@ -33,6 +34,7 @@ public class NewCountry extends JFrame implements ActionListener{
 		okay.setBounds(150, 175, 110, 20);
 		
 		add(countryName);
+		add(countryNamesField);
 		add(cancel);
 		add(okay);
 		
@@ -56,6 +58,7 @@ public class NewCountry extends JFrame implements ActionListener{
 		}
 		else{
 			countryNames.add(countryNamesField.getText());
+			setVisible(false);
 		}
 	}
 }

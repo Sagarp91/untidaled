@@ -85,8 +85,8 @@ public class NewHarbor extends JFrame implements ActionListener{
 		if(e.getSource() == cancel){
 			setVisible(false);
 		}
-		else if(Integer.parseInt(xCoord.getText()) > 50 || Integer.parseInt(yCoord.getText()) > 50){
-			JOptionPane.showMessageDialog(this,	"X and Y have to be less than or equal to 50","Wrong Coodinates", JOptionPane.ERROR_MESSAGE);
+		else if(Integer.parseInt(xCoord.getText()) > 50 || Integer.parseInt(yCoord.getText()) > 25){
+			JOptionPane.showMessageDialog(this,	"X and Y have to be less than or equal to 25","Wrong Coodinates", JOptionPane.ERROR_MESSAGE);
 		}
 		else if(harborNames.contains(harborNamesField.getText())){
 			JOptionPane.showMessageDialog(this, "There exists a harbor named : " + harborNamesField.getText(), "Cloning", JOptionPane.ERROR_MESSAGE);
@@ -95,8 +95,9 @@ public class NewHarbor extends JFrame implements ActionListener{
 			JOptionPane.showMessageDialog(this, "Select a Country", "ERROR", JOptionPane.ERROR_MESSAGE);
 		}
 		else{
-			coordinate = new Point(Integer.parseInt(xCoord.getText()),Integer.parseInt(xCoord.getText()));
+			coordinate = new Point(Integer.parseInt(xCoord.getText()),Integer.parseInt(yCoord.getText()));
 			WorldMap.addHarbor(new Harbor(harborNamesField.getText(), (String) country.getSelectedItem(), coordinate));
+			setVisible(false);
 		}
 	}
 }

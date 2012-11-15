@@ -32,10 +32,10 @@ import java.awt.Dimension;
  * @version 1.0 10/7/2012
  */
 public class WorldMap extends JFrame implements ActionListener{
-	public static ArrayList<Harbor> harborList;
-	private static ArrayList<String> countryList;
-	private static DrawPanel drawPnl;
-	public static JPopupMenu;
+	public static ArrayList<Harbor> harborList; //list of harbors
+	private static ArrayList<String> countryList; //list of countries
+	private static DrawPanel drawPnl; //area to draw on
+	public static JPopupMenu right; //right click menu
 	public static boolean isAdmin;
 	public static final int WORLD_WIDTH = 500, WORLD_HEIGHT = 550;
 	public static final int HARBOR_XBOUND = 25, HARBOR_YBOUND = 25;
@@ -93,6 +93,7 @@ public class WorldMap extends JFrame implements ActionListener{
 		newM.add(newCountry);
 		removeM.add(removeShip);
 		removeM.add(removeHarbor);
+		removeM.setEnabled(false);
 
 		right.add(newM);
 		right.add(removeM);
@@ -172,6 +173,7 @@ public class WorldMap extends JFrame implements ActionListener{
 			}
 		}
 		harborList.add(hb);
+		drawPnl.updateHarborMap();
 	}
 	/**
 	 * Attempts to remove the named harbor from the world. If found, will
@@ -235,11 +237,23 @@ public class WorldMap extends JFrame implements ActionListener{
 			} else if (command.equals("exit")){
 				System.exit(0);
 			} else if (command.equals("newship")){
-				//new ship
+				ArrayList<String> shipNames = new ArrayList<String>();
+				ArrayList<String> harborNames = new ArrayList<String>();
+				for (Harbor hb : harborList){
+					harborNames.add(hb.getName());
+					for (Ship sh : hb.getShipList()){
+						shipNames.add(sh.getName());
+					}
+				}
+				NewShip frm = new NewShip(shipNames, harborNames, countryList);
 			} else if (command.equals("newcountry")){
-				//new country
+				NewCountry frm = new NewCountry(countryList);
 			} else if (command.equals("newharbor")){
-				//new harbor
+				ArrayList<String> harborNames = new ArrayList<String>();
+				for (Harbor hb : harborList){
+					harborNames.add(hb.getName());
+				}
+				NewHarbor frm = new NewHarbor(harborNames, countryList);
 			} else if (command.equals("removeship")){
 				//remove ship from harbor
 			} else if (command.equals("removeharbor")){
@@ -279,6 +293,7 @@ public class WorldMap extends JFrame implements ActionListener{
 				Point pt = new Point(sc2.nextInt(), sc2.nextInt());
 				harborList.add(new Harbor(name, country, pt));
 			}
+			drawPnl.updateHarborMap();
 			next = sc.next();
 			while (!next.equals("0")){
 				String name = next;

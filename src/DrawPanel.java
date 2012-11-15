@@ -18,10 +18,12 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
 	public DrawPanel(){
 		this.harborList = WorldMap.harborList;
 		addMouseMotionListener(this);
+		addMouseListener(this);
 		updateHarborMap();
 	}
 
 	public void updateHarborMap(){
+		harborList = WorldMap.harborList;
 		harborMap = new int[WorldMap.HARBOR_XBOUND][WorldMap.HARBOR_YBOUND];
 
 		//Initialize each element as 0.
@@ -35,6 +37,7 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
 			Point pt = hb.getLoc();
 			harborMap[pt.x][pt.y] = 1;
 		}
+		repaint();
 	}
 
 	public void paint(Graphics g){
@@ -93,7 +96,8 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
 	public void mouseExited(MouseEvent me){}
 	public void mousePressed(MouseEvent me){
 		if (me.getButton() == MouseEvent.BUTTON3){
-			//TODO Things.
+			Point pt = new Point(me.getPoint().x, me.getPoint().y);
+			WorldMap.right.show(this, pt.x, pt.y);
 		}
 	}
 	public void mouseReleased(MouseEvent me){}
