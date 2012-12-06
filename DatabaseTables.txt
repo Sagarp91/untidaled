@@ -1,0 +1,26 @@
+create table HARBOR(
+	name varchar(50),
+	harbor_id int not null,
+	country_id int,
+	harbor_bank int,
+	num_war_ships int,
+	num_fishing_ships int,
+	fish_cap int not null,
+	war_cap int not null,
+	constraint pk_HARBOR primary key (harbor_id)
+);
+/*Note: harbor_id=0 indicates the open seas!
+
+create table FLEET(
+	source_harbor int not null,
+	target_harbor int not null,
+	fleet_id int not null,
+	size int not null,
+	constraint pk_FLEET primary key (fleet_id)
+);
+
+create table COUNTRY(
+	country_id int not null,
+	country_name varchar(50),
+	constraint pk_COUNTRY primary key (country_id)
+);

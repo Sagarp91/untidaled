@@ -1,0 +1,41 @@
+06/12/2012
+Notes on database things.
+What is a FLEET?
+	FLEETs are any ships that are currently moving. They are created the
+	moment they are ordered to move, and they are deleted the moment they
+	arrive at their destination.
+What is a COUNTRY?
+	COUNTRYs are just a small table used to link country names with id's.
+	All FLEETs and HARBORs belong to a country, or to the country id : 0,
+	which is the neutral state.
+What is a HARBOR?
+	This is the main interactive unit of the game. It has a fishing and war
+	ship capacity, along with a bank where it stores money.
+
+Other notes:
+Perhaps we can give each country unique bonuses. For example, Spanish fishing ships will cost less, and British harbors can hold more warships. American fishing ships can return more money per ship, and so on. Definitely not something we'll implement for a while, but just to write it down somewhere.
+
+03/12/2012 [.0]
+Make untidaled a "cell conquer" game. In such a game, the map has a set number
+of harbors. The player and any AI opponents start with at least one harbor. Over
+time, non-neutral harbors will generate money based on the number of fishing
+ships they have. At any point, the player may select a harbor and create a ship,
+be it a war ship or fishing ship, so long as the harbor selected has sufficient
+funds. Fishing ships will increase money generated, and war ships can be used to
+defend and conquer harbors.
+
+User controls:
+MenuBar:
+	-Level select (Allows the user to choose a level to play)
+	-Exit
+	*Note: Clicking on the menu bar should pause the game.
+Pause button (Pauses/unpauses game.)
+Right-click on a harbor brings up a menu:
+	-Purchase:
+		Fishing Ship (Creates a new fishing ship at this harbor)
+		War Ship (Creates a combat-ready ship at this harbor)
+	-Move (Moves half of this harbor's warships to the target harbor.)
+		(Maybe change this to a left-click drag instead?)
+Search button (Displays information about ships and harbors of any country.)
+
+
