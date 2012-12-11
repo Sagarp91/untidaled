@@ -1,0 +1,8 @@
+[ ] Store all data in classes as Hashmaps or something.
+[ ] Finish file in/out.
+[ ] dialogue boxes for admin.
+[ ] search button for both.
+[ ] Right-click for user.
+[ ] Left-click for user.
+[ ] Timer for game, animate.
+[ ] Timer for music.

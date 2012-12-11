@@ -7,6 +7,7 @@ A naval strategy game where you must balance between building your economy and c
 In this mode, you can create and edit game maps.
 
 <b>Controls</b>
+
 Under the File menu, select "New" to start a world from scratch, or "Open" to use/edit an existing map.
 
 Right-click anywhere on the map to bring up a menu.
@@ -22,6 +23,7 @@ Note that if a country is deleted, any harbors belonging to it will now belong t
 In this mode, you can play the game!
 
 <b>Controls</b>
+
 Right-click one of your harbors to bring up a creation menu.
 
 Under this creation menu, you can purchase ships to add to that harbor.
