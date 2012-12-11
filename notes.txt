@@ -15,6 +15,8 @@ What is a HARBOR?
 Other notes:
 Perhaps we can give each country unique bonuses. For example, Spanish fishing ships will cost less, and British harbors can hold more warships. American fishing ships can return more money per ship, and so on. Definitely not something we'll implement for a while, but just to write it down somewhere.
 
+Maybe warships should incur a money penalty, so that harbors with too many warships will not continue to grow (at least, not quickly).
+
 03/12/2012 [.0]
 Make untidaled a "cell conquer" game. In such a game, the map has a set number
 of harbors. The player and any AI opponents start with at least one harbor. Over

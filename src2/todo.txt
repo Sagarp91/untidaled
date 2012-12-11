@@ -1,0 +1,4 @@
+[ ] fleet class
+[ ] paint methods on harbor, fleet
+[ ] worldmap / drawpanel
+[ ] animate
