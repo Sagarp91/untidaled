@@ -3,6 +3,14 @@ untidaled
 
 A naval strategy game where you must balance between building your economy and conquering your foes!
 <hr>
+There is no .jar yet, so to run the game, use the following *cmd* command in the src2 directory:
+
+<code>java -classpath .;database\derby.jar;database\derbyclient.jar; Main</code>
+
+
+</hr>
+
+
 <h4>Admin mode</h4>
 In this mode, you can create and edit game maps.
 

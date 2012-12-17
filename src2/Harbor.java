@@ -8,9 +8,8 @@ public class Harbor{
 	//them easily when creating fleets.
 	private ArrayList<Cruiser> cruisers;
 	private ArrayList<Destroyer> destroyers;
-	//Fishers and barges can be lumped together, because they never have
-	//to be split.
-	private ArrayList<CivilianShip> civilians;
+	private ArrayList<Barge> barges;
+	private ArrayList<Fisher> fishers;
 	private String name;
 	private int warShipCap = 20;
 	private int civilianShipCap = 20;
@@ -39,15 +38,28 @@ public class Harbor{
 
 		cruisers = new ArrayList<Cruiser>();
 		destroyers = new ArrayList<Destroyer>();
-		civilians = new ArrayList<CivilianShip>();
+		barges = new ArrayList<Barge>();
+		fishers = new ArrayList<Fisher>();
 	}
 
 
 	public void generate(){
-		for (CivilianShip ship : civilians){
-			money += ship.generate();
+		for (Barge bg : barges){
+			money += bg.generate();
+		}
+		for (Fisher fish : fishers){
+			money += fish.generate();
 		}
 		money += HARBOR_GENERATE;
+		try{
+			Connection myConnection = Main.getConnection();
+			Statement stm = myConnection.createStatement();
+			stm.execute("update harbor set harbor_bank = " + money + " where harbor_id = " + id);
+			stm.close();
+		} catch (Exception e){
+			System.err.println("Error while generating money + updating database.");
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * Creates a fleet using half (rounded up) of each type of warship.
@@ -57,6 +69,9 @@ public class Harbor{
 	 * @return An ArrayList containing all ships in the fleet.
 	 */
 	public Fleet createFleet(int target_harbor){
+		if (cruisers.size() == 0 && destroyers.size() == 0){
+			return null;
+		}
 		ArrayList<Cruiser> cruiserSend = new ArrayList<Cruiser>();
 		if (cruisers.size() != 0){
 			for (int i = 0; i <= cruisers.size() / 2; ++i){
@@ -79,13 +94,41 @@ public class Harbor{
 				rs.next();
 				id = rs.getInt("fleet_id") + 1;
 			} catch(Exception e){}
-			Fleet fl = new Fleet(id, country_id, id, target_harbor, cruiserSend, destroyerSend);
+
+			int x = xLoc * DrawPanel.harborWidth;
+			int y = yLoc * DrawPanel.harborHeight;
+			Point pt = new Point(x,y);
+			Fleet fl = new Fleet(id, country_id, id, target_harbor, cruiserSend, destroyerSend, pt);
+			stm.execute(fl.toString());
 			rs.close();
 			stm.close();
 			return fl;
 		} catch(Exception e){
 			System.err.println("Error when creating fleet!");
+			e.printStackTrace();
 			return null;
+		}
+	}
+
+	/**
+	 * Updates this harbor's database entry for its num_[shiptype] fields.
+	 */
+	public void updateDatabaseEntry(){
+		try{
+			Connection myConnection = Main.getConnection();
+			Statement stm = myConnection.createStatement();
+			stm.execute("update harbor set num_cruisers = " + cruisers.size() + 
+					" where harbor_id = " + id);
+			stm.execute("update harbor set num_destroyers = " + destroyers.size() + 
+					" where harbor_id = " + id);
+			stm.execute("update harbor set num_fishers = " + fishers.size() + 
+					" where harbor_id = " + id);
+			stm.execute("update harbor set num_barges = " + barges.size() + 
+					" where harbor_id = " + id);
+			stm.close();
+		} catch(Exception e){
+			System.err.println("Something wrong when updating harbor database entry!");
+			e.printStackTrace();
 		}
 	}
 	/**
@@ -94,6 +137,7 @@ public class Harbor{
 	public void addCruiser(){
 		cruisers.add(new Cruiser(country_id));
 		money -= Cruiser.getPrice();
+		updateDatabaseEntry();
 	}
 	/**
 	 * Adds a destroyer. Assumes cap hasn't been reached and it has enough
@@ -102,20 +146,23 @@ public class Harbor{
 	public void addDestroyer(){
 		destroyers.add(new Destroyer(country_id));
 		money -= Destroyer.getPrice();
+		updateDatabaseEntry();
 	}
 	/**
 	 * Adds a fisher. Assumes cap hasn't been reached and it has enough money.
 	 */
 	public void addFisher(){
-		civilians.add(new Fisher(country_id));
+		fishers.add(new Fisher(country_id));
 		money -= Fisher.getPrice();
+		updateDatabaseEntry();
 	}
 	/**
 	 * Adds a barge. Assumes cap hasn't been reached and it has enough money.
 	 */
 	public void addBarge(){
-		civilians.add(new Barge(country_id));
+		barges.add(new Barge(country_id));
 		money -= Barge.getPrice();
+		updateDatabaseEntry();
 	}
 
 	/**
@@ -156,6 +203,8 @@ public class Harbor{
 	public void paint(Graphics g){
 		g.setColor(WorldMap.getColor(country_id));
 		g.fillRect(0, 0, DrawPanel.harborWidth, DrawPanel.harborHeight);
+		g.setColor(Color.WHITE);
+		g.drawString("" + money, 3, 15);
 	}
 	public void animate(){
 		//TODO blinking corners? maybe later.
@@ -180,35 +229,49 @@ public class Harbor{
 	/**
 	 * Resets the harbor after a successful takeover.
 	 * 
-	 * @param ships Surviving warships after the attack.
 	 * @param country_id New country for harbor.
 	 */
-	public void reset(ArrayList<Warship> ships, int country_id){
+	public void reset(int country_id){
 		this.country_id = country_id;
-		civilians = new ArrayList<CivilianShip>();
+		fishers = new ArrayList<Fisher>();
+		barges = new ArrayList<Barge>();
 		destroyers = new ArrayList<Destroyer>();
 		cruisers = new ArrayList<Cruiser>();
-		addWarships(ships);
+		money = 0;
+		updateDatabaseEntry();
 	}
 
 	/**
-	 * Adds warships for this harbor, most likely called after a battle.
-	 * Any ships exceeding the ship cap will be discarded.
+	 * Adds as many cruisers as possible to the harbor.
 	 *
-	 * @param ships The ships to place in this harbor.
+	 * @param cruisers The array of cruisers to add.
 	 */
-	public void addWarships(ArrayList<Warship> ships){
-		for (Warship ship : ships){
-			if (destroyers.size() + cruisers.size() < warShipCap){
-				if (ship.getType().equals("Destroyer")){
-					destroyers.add((Destroyer)ship);
-				} else if (ship.getType().equals("Cruiser")){
-					cruisers.add((Cruiser)ship);
-				}
+	public void addCruisers(ArrayList<Cruiser> cruisers){
+		for (int i = 0; i < cruisers.size(); ++i){
+			if (getNumWarShips() < warShipCap){
+				this.cruisers.add(cruisers.get(i));
 			} else{
-				break;
+				return;
 			}
 		}
+		updateDatabaseEntry();
+	}
+
+	/**
+	 * Adds as many destroyers as possible to the harbor, and updates the
+	 * database accordingly.
+	 *
+	 * @param destroyers the array of destroyers to add.
+	 */
+	public void addDestroyers(ArrayList<Destroyer> destroyers){
+		for (int i = 0; i < destroyers.size(); ++i){
+			if (getNumWarShips() < warShipCap){
+				this.destroyers.add(destroyers.get(i));
+			} else{
+				return;
+			}
+		}
+		updateDatabaseEntry();
 	}
 
 	/**
@@ -220,8 +283,8 @@ public class Harbor{
 		String str = "insert into harbor (name, harbor_id, country_id, harbor_bank, num_cruisers, num_destroyers, num_fishers, num_barges, civilian_cap, war_cap, xLoc, yLoc) values (";
 		String strName = "'" + name + "'";
 		str += strName + "," + id + "," + country_id + "," + money + "," +
-			cruisers.size() + "," + destroyers.size() + "," + civilians.size() +
-			"," + civilians.size() + "," + civilianShipCap + "," + warShipCap +
+			cruisers.size() + "," + destroyers.size() + "," + fishers.size() +
+			"," + barges.size() + "," + civilianShipCap + "," + warShipCap +
 			"," + xLoc + "," + yLoc + ")";
 		return str;
 	}
@@ -251,10 +314,19 @@ public class Harbor{
 	public int getNumCruisers(){
 		return cruisers.size();
 	}
-	public int getNumFishingShips(){
-		return civilians.size();
+	public int getNumBarges(){
+		return barges.size();
 	}
-	public int getWarshipCap(){
+	public int getNumFishers(){
+		return fishers.size();
+	}
+	public int getNumWarShips(){
+		return cruisers.size() + destroyers.size();
+	}
+	public int getNumCivilianShips(){
+		return barges.size() + fishers.size();
+	}
+	public int getWarShipCap(){
 		return warShipCap;
 	}
 	public int getCivilianShipCap(){
@@ -265,6 +337,9 @@ public class Harbor{
 	}
 	public int getCountryID(){
 		return country_id;
+	}
+	public int getHarborID(){
+		return id;
 	}
 	public Point getLoc(){
 		return new Point(xLoc, yLoc);

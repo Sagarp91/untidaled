@@ -8,12 +8,14 @@ import java.awt.Font;
  */
 public class InfoPanel extends JPanel{
 	private final Color FONT_COLOR = Color.BLACK;
-	public static String harborName;
-	public static String countryName;
+	public static String harborName, countryName;
+	public static int harbor_id, country_id;
 	
 	public InfoPanel(){
 		harborName = "";
 		countryName = "";
+		harbor_id = -1;
+		country_id = -1;
 	}
 
 	public void paint(Graphics g){

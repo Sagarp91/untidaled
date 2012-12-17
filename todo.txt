@@ -3,7 +3,7 @@
 	(not tested yet!)
 [x] dialogue boxes for admin.
 [ ] search button for both.
-[ ] Right-click for user.
+[x] Right-click for user.
 [ ] Left-click for user.
-[ ] Timer for game, animate.
+[/] Timer for game, animate.
 [ ] Timer for music.

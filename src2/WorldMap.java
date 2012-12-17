@@ -11,15 +11,13 @@ import java.io.File;
 import java.io.Writer;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JFileChooser;
 import java.awt.event.ActionListener;
@@ -27,6 +25,11 @@ import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.sql.*;
 
 /**
@@ -42,13 +45,18 @@ public class WorldMap extends JFrame implements ActionListener{
 	private static DrawPanel drawPnl; //area to draw on
 	public static JPopupMenu right; //right click menu
 	public static boolean isAdmin;
-	public static final int WORLD_WIDTH = 500, WORLD_HEIGHT = 550;
+	public static final int WORLD_WIDTH = 700, WORLD_HEIGHT = 650;
 	public static final int HARBOR_XBOUND = 25, HARBOR_YBOUND = 25;
 	private static Connection myConnection;
 	public static Statement stm = null;
 	public static ResultSet rs = null;
+	private static Timer tmr;
+	private int generateCounter = 0;
+	private final int GENERATE_INTERVAL = 100;
+	private int fleetCounter = 0;
+	private final int FLEET_INTERVAL = 10;
 	public WorldMap(boolean isAdmin){
-		setBounds(300, 200, WORLD_WIDTH, WORLD_HEIGHT);
+		setBounds(100, 100, WORLD_WIDTH, WORLD_HEIGHT);
 		setResizable(false);
 		setLayout(new BorderLayout());
 
@@ -65,6 +73,16 @@ public class WorldMap extends JFrame implements ActionListener{
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		if (!isAdmin){
+			JOptionPane.showMessageDialog(this, "Select a map to play!");
+			JFileChooser fc = new JFileChooser();
+			fc.setCurrentDirectory(new File("src/"));
+			int returnVal = fc.showOpenDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION){
+				File aFile = fc.getSelectedFile();
+				openFile(aFile);
+			}
+		}
 	}
 
 	/**
@@ -96,7 +114,7 @@ public class WorldMap extends JFrame implements ActionListener{
 	}
 
 	/**
-	 * Create right-click popup menu
+	 * Create right-click popup menu (based on what mode was selected).
 	 */
 	private void initRightClick(){
 		right = new JPopupMenu();
@@ -123,10 +141,14 @@ public class WorldMap extends JFrame implements ActionListener{
 			JMenu warM = new JMenu("War ship");
 			JMenu civM = new JMenu("Civilian ship");
 
-			JMenuItem cruiserM = new JMenu("Cruiser");
-			JMenuItem destroyerM = new JMenu("Destroyer");
-			JMenuItem fisherM = new JMenu("Fisher");
-			JMenuItem bargeM = new JMenu("Barge");
+			JMenuItem cruiserM = new JMenuItem("Cruiser ($" + 
+				Cruiser.getPrice() + ")");
+			JMenuItem destroyerM = new JMenuItem("Destroyer ($" + 
+				Destroyer.getPrice() + ")");
+			JMenuItem fisherM = new JMenuItem("Fisher ($" +
+				Fisher.getPrice() + ")");
+			JMenuItem bargeM = new JMenuItem("Barge ($" +
+				Barge.getPrice() + ")");
 
 			cruiserM.setActionCommand("newCruiser");
 			destroyerM.setActionCommand("newDestroyer");
@@ -179,9 +201,9 @@ public class WorldMap extends JFrame implements ActionListener{
 		add(drawPnl, BorderLayout.CENTER);
 		add(botPnl, BorderLayout.SOUTH);
 		InfoPanel infoPnl = new InfoPanel();
-		JButton searchBtn = new JButton("Search");
+		JButton searchBtn = new JButton("Stats");
 		searchBtn.addActionListener(this);
-		searchBtn.setActionCommand("search");
+		searchBtn.setActionCommand("stats");
 		botPnl.add(searchBtn, BorderLayout.EAST);
 		botPnl.add(infoPnl, BorderLayout.CENTER);
 	}
@@ -222,6 +244,34 @@ public class WorldMap extends JFrame implements ActionListener{
 		bar.add(fileM);
 
 		setJMenuBar(bar);
+	}
+
+	/**
+	 * A method to keep track of time and animate objects. Called by a timer.
+	 * Only used in User mode. Disabled while right-clicking.
+	 */
+	private void tick(){
+		if (!right.isVisible() && isEnabled()){
+			generateCounter++;
+			if (generateCounter >= GENERATE_INTERVAL){
+				generateCounter = 0;
+				for (Harbor hb : harborList){
+					hb.generate();
+				}
+			}
+			fleetCounter++;
+			if (fleetCounter >= FLEET_INTERVAL){
+				fleetCounter = 0;
+				ArrayList<Fleet> temp = new ArrayList<Fleet>();
+				for (Fleet fl : fleetList){
+					temp.add(fl);
+				}
+				for (Fleet fl : temp){
+					fl.move();
+				}
+			}
+			repaint();
+		}
 	}
 
 	/**
@@ -304,6 +354,37 @@ public class WorldMap extends JFrame implements ActionListener{
 		} else if (command.equals("newCountry")){
 			NewCountry dialogue = new NewCountry();
 			setEnabled(false);
+		} else if (command.equals("newCruiser")){
+			Harbor hb = harborList.get(InfoPanel.harbor_id);
+			if (hb.getMoney() >= Cruiser.getPrice()){
+				if (hb.getNumWarShips() < hb.getWarShipCap()){
+					hb.addCruiser();
+				}
+			}
+		} else if (command.equals("newDestroyer")){
+			Harbor hb = harborList.get(InfoPanel.harbor_id);
+			if (hb.getMoney() >= Destroyer.getPrice()){
+				if (hb.getNumWarShips() < hb.getWarShipCap()){
+					hb.addDestroyer();
+				}
+			}
+		} else if (command.equals("newFisher")){
+			Harbor hb = harborList.get(InfoPanel.harbor_id);
+			if (hb.getMoney() >= Fisher.getPrice()){
+				if (hb.getNumCivilianShips() < hb.getCivilianShipCap()){
+					hb.addFisher();
+				}
+			}
+		} else if (command.equals("newBarge")){
+			Harbor hb = harborList.get(InfoPanel.harbor_id);
+			if (hb.getMoney() >= Barge.getPrice()){
+				if (hb.getNumCivilianShips() < hb.getCivilianShipCap()){
+					hb.addBarge();
+				}
+			}
+		} else if (command.equals("stats")){
+			Stats dialogue = new Stats();
+			setEnabled(false);
 		}
 	}
 
@@ -321,10 +402,12 @@ public class WorldMap extends JFrame implements ActionListener{
 			//Delete any current entries in database.
 			clearDatabase();
 
-			//Reset all lists and maps.
+			//Reset all member variables.
 			countryMap = new HashMap<Integer, String>();
 			harborList = new ArrayList<Harbor>();
 			fleetList = new ArrayList<Fleet>();
+			generateCounter = 0;
+			fleetCounter = 0;
 
 			//Add all entries to database.
 			Scanner sc = new Scanner(aFile);
@@ -349,6 +432,16 @@ public class WorldMap extends JFrame implements ActionListener{
 				harborList.add(new Harbor(name, id, country_id, x, y));
 			}
 
+			if (!isAdmin){
+				tmr = new Timer();
+				TimerTask task = new TimerTask(){
+					public void run(){
+						tick();
+					}
+				};
+				tmr.schedule(task, 0, 10);
+			}
+			drawPnl.updateHarborMap();
 
 			repaint();
 		} catch (Exception e){
