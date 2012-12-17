@@ -112,7 +112,6 @@ public class DrawPanel extends JPanel implements MouseListener, MouseMotionListe
 						Fleet fl = WorldMap.harborList.get(source_harbor).createFleet(InfoPanel.harbor_id);
 						if (fl != null){
 							WorldMap.fleetList.add(fl);
-							System.out.println("Fleet created!");
 						}
 					}
 				}

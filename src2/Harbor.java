@@ -51,15 +51,7 @@ public class Harbor{
 			money += fish.generate();
 		}
 		money += HARBOR_GENERATE;
-		try{
-			Connection myConnection = Main.getConnection();
-			Statement stm = myConnection.createStatement();
-			stm.execute("update harbor set harbor_bank = " + money + " where harbor_id = " + id);
-			stm.close();
-		} catch (Exception e){
-			System.err.println("Error while generating money + updating database.");
-			e.printStackTrace();
-		}
+		updateDatabaseEntry();
 	}
 	/**
 	 * Creates a fleet using half (rounded up) of each type of warship.
@@ -111,7 +103,7 @@ public class Harbor{
 	}
 
 	/**
-	 * Updates this harbor's database entry for its num_[shiptype] fields.
+	 * Updates this harbor's database entry.
 	 */
 	public void updateDatabaseEntry(){
 		try{
@@ -124,6 +116,10 @@ public class Harbor{
 			stm.execute("update harbor set num_fishers = " + fishers.size() + 
 					" where harbor_id = " + id);
 			stm.execute("update harbor set num_barges = " + barges.size() + 
+					" where harbor_id = " + id);
+			stm.execute("update harbor set country_id = " + country_id +
+					" where harbor_id = " + id);
+			stm.execute("update harbor set harbor_bank = " + money +
 					" where harbor_id = " + id);
 			stm.close();
 		} catch(Exception e){

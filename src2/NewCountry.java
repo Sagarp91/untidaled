@@ -96,7 +96,9 @@ public class NewCountry extends JFrame implements ActionListener{
 				}
 			}
 
-			if (taken){
+			if (input.length() > 50){
+				JOptionPane.showMessageDialog(this, "Name too long! (Must be 50 characters or less.)");
+			} else if (taken){
 				JOptionPane.showMessageDialog(this, "Name taken!");
 			} else{
 				//Add the country to the database and exit.

@@ -54,7 +54,7 @@ public class WorldMap extends JFrame implements ActionListener{
 	private int generateCounter = 0;
 	private final int GENERATE_INTERVAL = 100;
 	private int fleetCounter = 0;
-	private final int FLEET_INTERVAL = 10;
+	private final int FLEET_INTERVAL = 5;
 	public WorldMap(boolean isAdmin){
 		setBounds(100, 100, WORLD_WIDTH, WORLD_HEIGHT);
 		setResizable(false);

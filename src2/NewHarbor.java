@@ -156,7 +156,9 @@ public class NewHarbor extends JFrame implements ActionListener{
 				}
 			}
 
-			if (nameFound){
+			if (harborNameInput.length() > 50){
+				JOptionPane.showMessageDialog(this, "Name too long! (Must be less than 50 characters)");
+			} else if (nameFound){
 				JOptionPane.showMessageDialog(this, "Name taken!");
 			} else if (pointTaken){
 				JOptionPane.showMessageDialog(this, "Location already in use!");
