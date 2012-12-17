@@ -200,7 +200,17 @@ public class Harbor{
 		g.setColor(WorldMap.getColor(country_id));
 		g.fillRect(0, 0, DrawPanel.harborWidth, DrawPanel.harborHeight);
 		g.setColor(Color.WHITE);
-		g.drawString("" + money, 3, 15);
+		if (money < 1000){
+			g.drawString("" + money, 3, 15);
+		} else if (money < 10000){
+			int first = money / 1000;
+			int decimal = money % 1000 / 100;
+			g.drawString(first + "." + decimal + "k" , 3, 15);
+		} else if (money < 100000){
+			g.drawString(money / 1000 + "k", 3, 15);
+		} else{
+			g.drawString("$$$", 3, 15);
+		}
 	}
 	public void animate(){
 		//TODO blinking corners? maybe later.

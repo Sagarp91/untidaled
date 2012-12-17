@@ -80,6 +80,10 @@ public class Fleet{
 	public void meet(){
 		try{
 			Harbor hb = WorldMap.harborList.get(target_harbor);
+			if (hb.getCountryID() == country_id){
+				mergeWithHarbor(hb);
+				return;
+			}
 			int difference = Math.abs(hb.getDamage() - getDamage());
 
 			if (hb.getDamage() > difference){
@@ -125,6 +129,16 @@ public class Fleet{
 			System.err.println("An error occured during a fleet/harbor meet!");
 			e.printStackTrace();
 		}
+	}
+	/**
+	 * Merges this fleet with an allied harbor. Any excess ships are
+	 * destroyed.
+	 *
+	 * @param hb The harbor to merge with.
+	 */
+	private void mergeWithHarbor(Harbor hb){
+		hb.addCruisers(cruisers);
+		hb.addDestroyers(destroyers);
 	}
 	/**
 	 * Removes this fleet from the database.

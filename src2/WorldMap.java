@@ -197,7 +197,7 @@ public class WorldMap extends JFrame implements ActionListener{
 		drawPnl = new DrawPanel();
 		JPanel botPnl = new JPanel();
 		botPnl.setLayout(new BorderLayout());
-		botPnl.setPreferredSize(new Dimension(WORLD_WIDTH, 50));
+		botPnl.setPreferredSize(new Dimension(WORLD_WIDTH, 100));
 		add(drawPnl, BorderLayout.CENTER);
 		add(botPnl, BorderLayout.SOUTH);
 		InfoPanel infoPnl = new InfoPanel();

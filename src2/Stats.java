@@ -45,6 +45,8 @@ public class Stats extends JFrame implements ActionListener{
 					totalCruisers += rs.getInt("num_cruisers");
 					totalDestroyers += rs.getInt("num_destroyers");
 					totalWorth += rs.getInt("harbor_bank");
+					totalWorth += rs.getInt("num_fishers") * Fisher.getPrice();
+					totalWorth += rs.getInt("num_barges") * Barge.getPrice();
 				}
 
 				rs = stm.executeQuery("select num_cruisers, num_destroyers from fleet where country_id = " + countryList.get(i));

@@ -58,7 +58,7 @@ public class Main{
 	 */
 	public static void createConnection(){
 		try{
-			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
+//			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
 			myConnection = DriverManager.getConnection("jdbc:derby:database/untidaled", "mismatch", "mismatch");
 		} catch(Exception e){
 			System.err.println("Could not connect to the database.");
