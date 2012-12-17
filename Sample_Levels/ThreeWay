@@ -1,0 +1,8 @@
+insert into country (country_id, country_name) values (0, 'Neutral')
+insert into country (country_id, country_name) values (1, 'USA')
+insert into country (country_id, country_name) values (2, 'Spain')
+insert into country (country_id, country_name) values (3, 'France')
+insert into harbor (name, harbor_id, country_id, harbor_bank, num_cruisers, num_destroyers, num_fishers, num_barges, civilian_cap, war_cap, xLoc, yLoc) values ('Baltimore',0,1,0,0,0,0,0,20,20,3,6)
+insert into harbor (name, harbor_id, country_id, harbor_bank, num_cruisers, num_destroyers, num_fishers, num_barges, civilian_cap, war_cap, xLoc, yLoc) values ('Le Havre',1,3,0,0,0,0,0,20,20,12,20)
+insert into harbor (name, harbor_id, country_id, harbor_bank, num_cruisers, num_destroyers, num_fishers, num_barges, civilian_cap, war_cap, xLoc, yLoc) values ('Malaga',2,2,0,0,0,0,0,20,20,17,7)
+insert into harbor (name, harbor_id, country_id, harbor_bank, num_cruisers, num_destroyers, num_fishers, num_barges, civilian_cap, war_cap, xLoc, yLoc) values ('Island',3,0,0,0,0,0,0,20,20,14,13)

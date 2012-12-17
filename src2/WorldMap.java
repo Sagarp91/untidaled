@@ -45,7 +45,7 @@ public class WorldMap extends JFrame implements ActionListener{
 	private static DrawPanel drawPnl; //area to draw on
 	public static JPopupMenu right; //right click menu
 	public static boolean isAdmin;
-	public static final int WORLD_WIDTH = 700, WORLD_HEIGHT = 650;
+	public static final int WORLD_WIDTH = 800, WORLD_HEIGHT = 650;
 	public static final int HARBOR_XBOUND = 25, HARBOR_YBOUND = 25;
 	private static Connection myConnection;
 	public static Statement stm = null;
@@ -247,6 +247,61 @@ public class WorldMap extends JFrame implements ActionListener{
 	}
 
 	/**
+	 * Checks to see if anyone has won. Displays an alert if so, and then
+	 * prompts user to open a different level/map.
+	 */
+	public static void checkWin(){
+		try{
+			stm = myConnection.createStatement();
+			ResultSet rs = stm.executeQuery("select country_id from harbor");
+			int last_id = -1;
+			int counter = 0;
+			int total = 0;
+			while (rs.next()){
+				total++;
+				int cur_id = rs.getInt("country_id");
+				if (cur_id == last_id || cur_id == 0){
+					counter++;
+				} else{
+					last_id = cur_id;
+					counter = 1;
+				}
+			}
+			if (counter == total){
+				//At this point, someone has won and the game is over.
+				if (last_id == 1){
+					JOptionPane.showMessageDialog(Main.getWorldMap(), "You won!");
+				} else{
+					rs = stm.executeQuery("select country_name from country where country_id = " + last_id);
+					rs.next();
+					String name = rs.getString("country_name");
+					JOptionPane.showMessageDialog(Main.getWorldMap(), name + " won! You have been defeated!");
+				}
+				//Prompt user to choose a map.
+				JOptionPane.showMessageDialog(Main.getWorldMap(), "Choose another map to play, or hit cancel to exit.");
+				JFileChooser fc = new JFileChooser();
+				fc.setCurrentDirectory(new File("src/"));
+				int returnVal = fc.showOpenDialog(Main.getWorldMap());
+				if (returnVal == JFileChooser.APPROVE_OPTION){
+					File aFile = fc.getSelectedFile();
+					Main.getWorldMap().openFile(aFile);
+				} else{
+					rs.close();
+					stm.close();
+					myConnection.close();
+					System.exit(0);
+				}
+			}
+			rs.close();
+			stm.close();
+		} catch (Exception e){
+			System.err.println("Error while checking win condition!");
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
 	 * A method to keep track of time and animate objects. Called by a timer.
 	 * Only used in User mode. Disabled while right-clicking.
 	 */
@@ -256,7 +311,9 @@ public class WorldMap extends JFrame implements ActionListener{
 			if (generateCounter >= GENERATE_INTERVAL){
 				generateCounter = 0;
 				for (Harbor hb : harborList){
-					hb.generate();
+					if (hb.getCountryID() != 0){
+						hb.generate();
+					}
 				}
 			}
 			fleetCounter++;
@@ -327,8 +384,11 @@ public class WorldMap extends JFrame implements ActionListener{
 		if (command.equals("new")){
 			harborList = new ArrayList<Harbor>();
 			countryMap = new HashMap<Integer, String>();
+			InfoPanel.resetInfo();
+			drawPnl.updateHarborMap();
 			clearDatabase();
 			insertNeutralCountry();
+			repaint();
 		} else if (command.equals("open")){
 			JFileChooser fc = new JFileChooser();
 			fc.setCurrentDirectory(new File("src/"));

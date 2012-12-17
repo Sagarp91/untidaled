@@ -13,7 +13,6 @@ public class Fleet{
 	private ArrayList<Destroyer> destroyers;
 	private static final int X_SPEED = 2;
 	private static final int Y_SPEED = 2;
-	private static final int T = 7;
 
 	public Fleet(int fleet_id, int country_id, int source_harbor, int target_harbor, ArrayList<Cruiser> cruisers, ArrayList<Destroyer> destroyers, Point location){
 		this.fleet_id = fleet_id;
@@ -124,6 +123,7 @@ public class Fleet{
 				hb.reset(country_id);
 				hb.addCruisers(cruisers);
 				hb.addDestroyers(destroyers);
+				WorldMap.checkWin();
 			}
 		} catch (Exception e){
 			System.err.println("An error occured during a fleet/harbor meet!");

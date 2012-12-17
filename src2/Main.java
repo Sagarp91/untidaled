@@ -46,6 +46,13 @@ public class Main{
 	}
 
 	/**
+	 * Returns the world map instance.
+	 */
+	public static WorldMap getWorldMap(){
+		return map;
+	}
+
+	/**
 	 * Returns a connection to the untidaled database.
 	 *
 	 * @return A connection to the database.

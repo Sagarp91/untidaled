@@ -20,6 +20,8 @@ Be careful when reinforcing your own harbors! Harbors have a cap to how many shi
 Note that barges generate twice as much money over time than fishers. These are efficient in terms of your harbor's capacities, but they cost much more!  
 The same idea goes for destroyers vs. cruisers.
 
+*AI has not been implemented yet, so at the moment your playthroughs may be a bit dull.*
+
 <hr>
 
 <h4>Admin mode</h4>
@@ -40,7 +42,10 @@ Under the File menu, select "Save" to save your work as a map.
 <h4>User mode</h4>
 In this mode, you can play the game!
 
+
 <b>Controls</b>
+
+Open up a level from the "Sample\_Level" directory provided, or open a map you've created.
 
 Right-click one of your harbors to bring up a creation menu.
 

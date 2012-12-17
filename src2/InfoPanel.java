@@ -21,6 +21,13 @@ public class InfoPanel extends JPanel{
 		myConnection = Main.getConnection();
 	}
 
+	public static void resetInfo(){
+		harborName = "";
+		countryName = "";
+		harbor_id = -1;
+		country_id = -1;
+	}
+
 	public void paint(Graphics g){
 		g.setColor(FONT_COLOR);
 		int width = getWidth();
