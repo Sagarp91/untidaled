@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Sun Dec 16 14:34:59 EST 2012:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.1.2 - (1095077): instance a816c00e-013b-a536-52fc-00000328a148 
-on database directory C:\Users\Tommy\Documents\GitHub\untidaled\src2\database\untidaled  with class loader sun.misc.Launcher$AppClassLoader@6d6f0472 
+Sun Dec 16 19:18:11 EST 2012:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.8.1.2 - (1095077): instance a816c00e-013b-a639-99ab-00000328a0e8 
+on database directory C:\Users\Tommy\Documents\GitHub\untidaled\src2\database\untidaled  with class loader sun.misc.Launcher$AppClassLoader@77cde100 
 Loaded from file:/C:/Users/Tommy/Documents/GitHub/untidaled/src2/database/derby.jar
 java.vendor=Sun Microsystems Inc.
 java.runtime.version=1.6.0_26-b03

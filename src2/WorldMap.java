@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,22 +25,26 @@ import javax.swing.JFileChooser;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.sql.*;
 
 /**
  * The gateway between the GUI and the rest of our data. Holds all harbors.
  * @author Tommy
- * @version 1.0 10/7/2012
+ * @version 1.1 12/16/2012
  */
 public class WorldMap extends JFrame implements ActionListener{
 	public static ArrayList<Harbor> harborList; //list of harbors
-	private static ArrayList<String> countryList; //list of countries
+	public static ArrayList<Fleet> fleetList; //list of fleets
+	public static HashMap<Integer, String> countryMap; //map of countries/id's
+	public static HashMap<Integer, Color> colorMap; //map of colors
 	private static DrawPanel drawPnl; //area to draw on
 	public static JPopupMenu right; //right click menu
 	public static boolean isAdmin;
 	public static final int WORLD_WIDTH = 500, WORLD_HEIGHT = 550;
 	public static final int HARBOR_XBOUND = 25, HARBOR_YBOUND = 25;
+	private static Connection myConnection;
 	public static Statement stm = null;
 	public static ResultSet rs = null;
 	public WorldMap(boolean isAdmin){
@@ -52,71 +57,116 @@ public class WorldMap extends JFrame implements ActionListener{
 		initVars();
 		initMenu();
 		initPanels();
-		if (isAdmin){
-			initRightClick();
-		}
+		initRightClick();
 
-		//Database things:
-		try{
-			Class.forName("org.apache.derby.jdbc.ClientDriver").newInstance();
-			Connection myConnection = DriverManager.getConnection("jdbc:derby:database/untidaled", "app", "app");
-			stm = myConnection.createStatement();
-		} catch(Exception e){
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-
+		myConnection = Main.getConnection();
+		clearDatabase();
+		insertNeutralCountry();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
+
+	/**
+	 * Clears all entries in the database.
+	 */
+	private void clearDatabase(){
+		try{
+			Statement stm = myConnection.createStatement();
+			stm.execute("delete from fleet");
+			stm.execute("delete from harbor");
+			stm.execute("delete from country");
+		} catch(Exception e){
+			System.err.println("Could not clear database entries.");
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * Inserts the neutral country.
+	 */
+	private void insertNeutralCountry(){
+		try{
+			Statement stm = myConnection.createStatement();
+			stm.execute("insert into country (country_id, country_name) values (0, 'Neutral')");
+			countryMap.put(0, "Neutral");
+		} catch(Exception e){
+			System.err.println("Could not insert neutral country.");
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Create right-click popup menu
 	 */
 	private void initRightClick(){
 		right = new JPopupMenu();
 
-		JMenu newM = new JMenu("New");
+		if (isAdmin){
+			JMenu newM = new JMenu("New");
 
-		JMenuItem newShip = new JMenuItem("Ship");
-		newShip.setActionCommand("newship");
-		newShip.addActionListener(this);
+			JMenuItem newHarbor = new JMenuItem("Harbor");
+			JMenuItem newCountry = new JMenuItem("Country");
 
-		JMenuItem newHarbor = new JMenuItem("Harbor");
-		newHarbor.setActionCommand("newharbor");
-		newHarbor.addActionListener(this);
+			newHarbor.setActionCommand("newHarbor");
+			newCountry.setActionCommand("newCountry");
 
-		JMenuItem newCountry = new JMenuItem("Country");
-		newCountry.setActionCommand("newcountry");
-		newCountry.addActionListener(this);
+			newHarbor.addActionListener(this);
+			newCountry.addActionListener(this);
 
-		JMenu removeM = new JMenu("Remove");
+			newM.add(newHarbor);
+			newM.add(newCountry);
 
-		JMenuItem removeShip = new JMenuItem("Ship");
-		removeShip.setActionCommand("removeship");
-		removeShip.addActionListener(this);
+			right.add(newM);
+		} else{
+			JMenu buyM = new JMenu("Buy");
 
-		JMenuItem removeHarbor = new JMenuItem("Harbor");
-		removeHarbor.setActionCommand("removeharbor");
-		removeHarbor.addActionListener(this);
+			JMenu warM = new JMenu("War ship");
+			JMenu civM = new JMenu("Civilian ship");
 
-		newM.add(newShip);
-		newM.add(newHarbor);
-		newM.add(newCountry);
-		removeM.add(removeShip);
-		removeM.add(removeHarbor);
-		removeM.setEnabled(false);
+			JMenuItem cruiserM = new JMenu("Cruiser");
+			JMenuItem destroyerM = new JMenu("Destroyer");
+			JMenuItem fisherM = new JMenu("Fisher");
+			JMenuItem bargeM = new JMenu("Barge");
 
-		right.add(newM);
-		right.add(removeM);
+			cruiserM.setActionCommand("newCruiser");
+			destroyerM.setActionCommand("newDestroyer");
+			fisherM.setActionCommand("newFisher");
+			bargeM.setActionCommand("newBarge");
+
+			cruiserM.addActionListener(this);
+			destroyerM.addActionListener(this);
+			fisherM.addActionListener(this);
+			bargeM.addActionListener(this);
+
+			warM.add(cruiserM);
+			warM.add(destroyerM);
+
+			civM.add(fisherM);
+			civM.add(bargeM);
+
+			buyM.add(warM);
+			buyM.add(civM);
+
+			right.add(buyM);
+		}
+
+
 	}
 	/**
 	 * Initialize variables
 	 */
 	private void initVars(){
 		harborList = new ArrayList<Harbor>();
-		countryList = new ArrayList<String>();
+		countryMap = new HashMap<Integer, String>();
+		colorMap = new HashMap<Integer, Color>();
+		colorMap.put(0, Color.GRAY);
+		colorMap.put(1, Color.BLUE);
+		colorMap.put(2, Color.RED);
+		colorMap.put(3, Color.GREEN);
+		colorMap.put(4, Color.BLACK);
+		colorMap.put(5, Color.WHITE);
+		colorMap.put(6, Color.ORANGE);
+		colorMap.put(7, Color.YELLOW);
 	}
 	/**
 	 * Set up the panels and the search button.
@@ -177,6 +227,7 @@ public class WorldMap extends JFrame implements ActionListener{
 	/**
 	 * Attempts to add the passed harbor. If it already exists in the world,
 	 * does nothing. Otherwise, adds it to the harbor list.
+	 *
 	 * @param hb Harbor to add.
 	 */
 	public static void addHarbor(Harbor hb){
@@ -197,25 +248,11 @@ public class WorldMap extends JFrame implements ActionListener{
 	public static void removeHarbor(String name){
 		for (int i = 0; i < harborList.size(); ++i){
 			if (harborList.get(i).getName().equals(name)){
-				harborList.get(i).clearList();
 				harborList.remove(i);
 				return;
 			}
 		}
 	}
-	/*
-	 * Adds a ship to a harbor. Can be called in a static context.
-	 * @param ship The ship to add.
-	 */
-	public static void addShip(Ship ship){
-		String harborName = ship.getCurHarbor();
-		for (Harbor hb : harborList){
-			if (harborName.equals(hb.getName())){
-				hb.addShip(ship);
-				return;
-			}
-		}
-	}	
 	public static String printHarborList(){
 		String toReturn = "Harbors in world: \n";
 		for (Harbor harbor : harborList){
@@ -223,59 +260,71 @@ public class WorldMap extends JFrame implements ActionListener{
 		}
 		return toReturn;
 	}
+	
+	/**
+	 * Get the country's corresponding color.
+	 *
+	 * @param country_id The country's id.
+	 */
+	public static Color getColor(int country_id){
+		return colorMap.get(country_id);
+	}
 
 //---LISTENER METHODS:---
 
 	public void actionPerformed(ActionEvent ae){
-			String command = ae.getActionCommand();
-			if (command.equals("new")){
-				//TODO new things.
-			} else if (command.equals("open")){
-				JFileChooser fc = new JFileChooser();
-				fc.setCurrentDirectory(new File("src/"));
-				int returnVal = fc.showOpenDialog(this);
-				if (returnVal == JFileChooser.APPROVE_OPTION){
-					File aFile = fc.getSelectedFile();
-					openFile(aFile);
-				}
-			} else if (command.equals("save")){
-				JFileChooser fc = new JFileChooser();
-				fc.setCurrentDirectory(new File("src/"));
-				int returnVal = fc.showSaveDialog(this);
-				if (returnVal == JFileChooser.APPROVE_OPTION){
-					File aFile = fc.getSelectedFile();
-					saveFile(aFile);
-				}
-			} else if (command.equals("exit")){
-				//Remove all entries from database.
-				try {
-					stm.execute("delete from fleet");
-					stm.execute("delete from harbor");
-					stm.execute("delete from country");
-				} catch (Exception e){
-					e.printStackTrace();
-				}
-				System.exit(0);
-			} else if (command.equals("newharbor")){
-				//TODO new dialogue
-			} else if (command.equals("removeship")){
-				//remove ship from harbor
-				//maybe we won't implement this yet.
-			} else if (command.equals("removeharbor")){
-				//remove harbor and all ships in it.
-			} else if (command.equals("search")){
-				//TODO new search gui.
+		String command = ae.getActionCommand();
+		if (command.equals("new")){
+			harborList = new ArrayList<Harbor>();
+			countryMap = new HashMap<Integer, String>();
+			clearDatabase();
+			insertNeutralCountry();
+		} else if (command.equals("open")){
+			JFileChooser fc = new JFileChooser();
+			fc.setCurrentDirectory(new File("src/"));
+			int returnVal = fc.showOpenDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION){
+				File aFile = fc.getSelectedFile();
+				openFile(aFile);
 			}
+		} else if (command.equals("save")){
+				JFileChooser fc = new JFileChooser();
+			fc.setCurrentDirectory(new File("src/"));
+			int returnVal = fc.showSaveDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION){
+				File aFile = fc.getSelectedFile();
+				saveFile(aFile);
+			}
+		} else if (command.equals("exit")){
+			clearDatabase();
+			System.exit(0);
+		} else if (command.equals("newHarbor")){
+			NewHarbor dialogue = new NewHarbor();
+			setEnabled(false);
+		} else if (command.equals("newCountry")){
+			NewCountry dialogue = new NewCountry();
+			setEnabled(false);
+		}
 	}
 
 //---FILE IN/OUT:---
 
+	/**
+	 * Opens a file. The file should be written as SQL insert statements.
+	 *
+	 * @param aFile The file to read from.
+	 */
 	private void openFile(File aFile){
 		try{
+			//Create statement
+			stm = myConnection.createStatement();
 			//Delete any current entries in database.
-			stm.execute("delete from fleet");
-			stm.execute("delete from harbor");
-			stm.execute("delete from country");
+			clearDatabase();
+
+			//Reset all lists and maps.
+			countryMap = new HashMap<Integer, String>();
+			harborList = new ArrayList<Harbor>();
+			fleetList = new ArrayList<Fleet>();
 
 			//Add all entries to database.
 			Scanner sc = new Scanner(aFile);
@@ -286,11 +335,18 @@ public class WorldMap extends JFrame implements ActionListener{
 			//Create instances based on entries in database.
 			rs = stm.executeQuery("select * from country");
 			while (rs.next()){
-				//TODO create countries based on results.
+				countryMap.put(rs.getInt("country_id"), rs.getString("country_name"));
 			}
+
 			rs = stm.executeQuery("select * from harbor");
 			while (rs.next()){
-				//TODO create new harbor based on results.
+				int id = rs.getInt("harbor_id");
+				int country_id = rs.getInt("country_id");
+				String name = rs.getString("name");
+				int x = rs.getInt("xLoc");
+				int y = rs.getInt("yLoc");
+
+				harborList.add(new Harbor(name, id, country_id, x, y));
 			}
 
 
@@ -299,10 +355,26 @@ public class WorldMap extends JFrame implements ActionListener{
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Saves data as SQL insert statements. Fleets are not saved, since they
+	 * are made only when playing.
+	 *
+	 * @param aFile File to write to.
+	 */
 	private void saveFile(File aFile){
 			try{
 				Writer out = new OutputStreamWriter(new FileOutputStream(aFile));
-				//TODO writing.
+				for (Integer country_id : countryMap.keySet()){
+					String str = "insert into country (country_id, country_name) values (" + country_id + ", " + "'" + countryMap.get(country_id) + "')\n";
+					out.write(str);
+				}
+
+				for (Harbor hb : harborList){
+					String str = hb.toString() + "\n";
+					out.write(str);
+				}
+
 				out.close();
 			} catch (Exception e){
 				System.err.println("Failed to save!");

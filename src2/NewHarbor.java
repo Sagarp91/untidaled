@@ -2,9 +2,11 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
@@ -20,46 +22,48 @@ public class NewHarbor extends JFrame implements ActionListener{
 	private ResultSet rs;
 	private JTextField nameFld;
 	private JComboBox countryBox, xBox, yBox;
+	private final int FRAME_WIDTH = 250, FRAME_HEIGHT = 400;
 	/**
 	 * Creates a dialogue box with a connection to the database.
 	 *
 	 * @param myConnection The connection to the database.
 	 */
-	public NewHarbor(Connection myConnection){
-		this.myConnection = myConnection;
-		stm = this.myConnection.createStatement();
-		try{
-			stm = myConnection.createStatement();
-		} catch(Exception e){
-			System.err.println("Could not create a statement!");
-		}
+	public NewHarbor(){
+		myConnection = Main.getConnection();
 
-		setSize(400,400);
+		setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		setUndecorated(true);
-		setLayout(new BorderLayout());
+		setLayout(new FlowLayout());
 
 		//Create labels and text field.
-		JLabel nameLbl = new JLabel("Name:", JLabel.CENTER);
-		JLabel countryLbl = new JLabel("Country:", JLabel.CENTER);
-		JLabel locationLbl = new JLabel("Location:", JLabel.CENTER);
+		Dimension lblDim = new Dimension(60, 30);
+		JLabel nameLbl = new JLabel("Name:", JLabel.RIGHT);
+		nameLbl.setPreferredSize(lblDim);
+		JLabel countryLbl = new JLabel("Country:", JLabel.RIGHT);
+		countryLbl.setPreferredSize(lblDim);
+		JLabel locationLbl = new JLabel("Location:", JLabel.RIGHT);
+		locationLbl.setPreferredSize(lblDim);
 		nameFld = new JTextField();
+		nameFld.setPreferredSize(new Dimension(150,30));
 
 		//Create the country combo box.
 		ArrayList<String> countryList = new ArrayList<String>();
 		try{
+			Statement stm = myConnection.createStatement();
 			rs = stm.executeQuery("select country_name from country");
 			while (rs.next()){
 				countryList.add(rs.getString("country_name"));
 			}
 			rs.close();
+			stm.close();
 		} catch(Exception e){
 			System.err.println("Something went wrong while trying to create the country name array list!");
 			e.printStackTrace();
 		}
-		String[] namesArray = (String[])(countryList.toArray());
-		countryBox = new JComboBox(namesArray);
+		countryBox = new JComboBox(countryList.toArray());
 		countryBox.setSelectedIndex(0);
 		countryBox.addActionListener(this);
+		countryBox.setPreferredSize(new Dimension(150, 30));
 
 		//Create the combo boxes for x and y locations.
 		Integer[] xArray = new Integer[WorldMap.HARBOR_XBOUND];
@@ -71,7 +75,19 @@ public class NewHarbor extends JFrame implements ActionListener{
 			yArray[i] = i;
 		}
 		xBox = new JComboBox(xArray);
+		xBox.setPreferredSize(new Dimension(70,30));
 		yBox = new JComboBox(yArray);
+		yBox.setPreferredSize(new Dimension(70,30));
+
+		//Create buttons.
+		JButton cancelBtn = new JButton("cancel");
+		JButton okayBtn = new JButton("okay");
+		cancelBtn.addActionListener(this);
+		okayBtn.addActionListener(this);
+		cancelBtn.setActionCommand("cancel");
+		okayBtn.setActionCommand("okay");
+		cancelBtn.setPreferredSize(new Dimension(FRAME_WIDTH/2, 30));
+		okayBtn.setPreferredSize(new Dimension(FRAME_WIDTH/2, 30));
 
 		//Add everything to panels and the frame.
 		JPanel namePnl = new JPanel();
@@ -90,11 +106,15 @@ public class NewHarbor extends JFrame implements ActionListener{
 		locationPnl.add(xBox);
 		locationPnl.add(yBox);
 
+		JPanel btnPnl = new JPanel();
+		btnPnl.setLayout(new FlowLayout());
+		btnPnl.add(cancelBtn);
+		btnPnl.add(okayBtn);
 
-
-		add(namePnl, BorderLayout.NORTH);
+		add(namePnl);
 		add(countryPnl);
-		add(locationPnl, BorderLayout.SOUTH);
+		add(locationPnl);
+		add(btnPnl);
 
 		setVisible(true);
 	}
@@ -103,16 +123,17 @@ public class NewHarbor extends JFrame implements ActionListener{
 	 * Just for testing the frame's looks.
 	 */
 	public static void main(String[] args){
-		Connection cn = null;
-		NewHarbor hb = new NewHarbor(cn);
+		NewHarbor hb = new NewHarbor();
 	}
 	public void actionPerformed(ActionEvent ae){
 		String command = ae.getActionCommand();
-		if (command.equals("exit")){
+		if (command.equals("cancel")){
 			close();
-		} else{
+		} else if (command.equals("okay")){
+			try{
 			//Check to see if harbor name is taken.
 			String harborNameInput = nameFld.getText();
+			Statement stm = myConnection.createStatement();
 			rs = stm.executeQuery("select name from harbor");
 			boolean nameFound = false;
 			while (rs.next() && !nameFound){
@@ -136,16 +157,19 @@ public class NewHarbor extends JFrame implements ActionListener{
 			}
 
 			if (nameFound){
-				//Alert the user that name has been taken.
+				JOptionPane.showMessageDialog(this, "Name taken!");
 			} else if (pointTaken){
-				//Alert user that point is taken.
+				JOptionPane.showMessageDialog(this, "Location already in use!");
 			} else{
 				//Add the harbor to the database.
 				//Find next available id.
-				rs = stm.executeQuery("select harbor_id from harbor order " +
-					"by desc");
-				rs.next();
-				int id = rs.getInt("harbor_id") + 1;
+				int id = 0;
+				try{
+					rs = stm.executeQuery("select harbor_id from harbor " +
+						"order by harbor_id desc");
+					rs.next();
+					id = rs.getInt("harbor_id") + 1;
+				} catch(Exception e){}
 
 				//Find country id.
 				rs = stm.executeQuery("select country_id from country where country_name = '" + (String)(countryBox.getSelectedItem()) + "'");
@@ -153,20 +177,25 @@ public class NewHarbor extends JFrame implements ActionListener{
 				int country_id = rs.getInt("country_id");
 
 				//Add.
-				stm.execute("insert into harbor (harbor_id, harbor_name, country_id, xLoc, yLoc) values (" + id + ", " + harborNameInput + ", " + country_id + ", " + xInput + ", " + yInput + ")");
+				Harbor hb = new Harbor(harborNameInput, id, country_id, xInput, yInput);
+				stm.execute(hb.toString());
+				WorldMap.addHarbor(hb);
 
+				stm.close();
 				rs.close();
 				close();
+			}
+			} catch(Exception e){
+				e.printStackTrace();
 			}
 		}
 	}
 
 	/**
-	 * Closes the frame. In a later implementation, this should also return
-	 * focus to the main GUI.
+	 * Closes the frame and enables the WorldMap.
 	 */
 	public void close(){
-		stm.close();
+		Main.enableWorldMap();
 		dispose();
 	}
 }

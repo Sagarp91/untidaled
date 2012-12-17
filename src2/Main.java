@@ -10,9 +10,9 @@ import java.sql.*;
  */
 public class Main{
 	private static Connection myConnection;
+	private static WorldMap map;
 	public static void main(String[] args){
 		createConnection();
-		WorldMap map;
 		JFrame frm = new JFrame();
 
 		Object[] options = {"Admin", "User", "Exit"};
@@ -36,6 +36,13 @@ public class Main{
 				System.exit(0);
 				break;
 		}
+	}
+
+	/**
+	 * Enables the world map. Called by dialogue boxes.
+	 */
+	public static void enableWorldMap(){
+		map.setEnabled(true);
 	}
 
 	/**

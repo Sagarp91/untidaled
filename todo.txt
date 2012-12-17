@@ -1,5 +1,6 @@
-[ ] Store all data in classes as Hashmaps or something.
-[ ] Finish file in/out.
+[x] Store all data in classes as Hashmaps or something.
+[x] Finish file in/out.
+	(not tested yet!)
 [x] dialogue boxes for admin.
 [ ] search button for both.
 [ ] Right-click for user.

@@ -1,5 +1,6 @@
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -11,6 +12,7 @@ import java.sql.*;
 
 /**
  * Dialogue box for creating a new country. Does not allow duplicate names.
+ *
  * @author Mismatch
  */
 public class NewCountry extends JFrame implements ActionListener{
@@ -26,11 +28,9 @@ public class NewCountry extends JFrame implements ActionListener{
 	/**
 	 * Creates a dialogue box for adding new countries to the database. If the
 	 * country name is already in the database, alerts the user.
-	 *
-	 * @param connect A connection to the database.
 	 */
-	public NewCountry(Connection myConnection){
-		this.myConnection = myConnection;
+	public NewCountry(){
+		this.myConnection = Main.getConnection();
 		setSize(200,140);
 		setLayout(new BorderLayout());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -73,8 +73,7 @@ public class NewCountry extends JFrame implements ActionListener{
 	 * @param args Command line arguments.
 	 */
 	public static void main(String[] args){
-		Connection cn = null;
-		NewCountry nc = new NewCountry(cn);
+		NewCountry nc = new NewCountry();
 	}
 
 	public void actionPerformed(ActionEvent ae){
@@ -98,7 +97,7 @@ public class NewCountry extends JFrame implements ActionListener{
 			}
 
 			if (taken){
-				//Alert the user that name is taken.
+				JOptionPane.showMessageDialog(this, "Name taken!");
 			} else{
 				//Add the country to the database and exit.
 				rs = stm.executeQuery("select country_id from country order by country_id desc");
@@ -111,6 +110,8 @@ public class NewCountry extends JFrame implements ActionListener{
 				}
 				stm.execute("insert into country (country_id, country_name)" +
 					" values ("+ id + ", '" + input + "')");
+
+				WorldMap.countryMap.put(id, input);
 				
 				rs.close();
 				stm.close();
@@ -128,6 +129,7 @@ public class NewCountry extends JFrame implements ActionListener{
 	 * to the main GUI.
 	 */
 	private void close(){
+		Main.enableWorldMap();
 		dispose();
 	}
 }
